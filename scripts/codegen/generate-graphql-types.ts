@@ -1,5 +1,5 @@
 import { generate } from '@graphql-codegen/cli';
-import { Types } from '@graphql-codegen/plugin-helpers/typings';
+import type { CodegenConfig } from '@graphql-codegen/cli';
 import fs from 'fs';
 import { buildClientSchema } from 'graphql';
 import path from 'path';
@@ -80,7 +80,7 @@ Promise.all([
         const commonPlugins = [disableEsLintPlugin, 'typescript'];
         const clientPlugins = [...commonPlugins, 'typescript-operations', 'typed-document-node'];
 
-        const codegenConfig: Types.Config = {
+        const codegenConfig: CodegenConfig = {
             overwrite: true,
             generates: {
                 [path.join(
