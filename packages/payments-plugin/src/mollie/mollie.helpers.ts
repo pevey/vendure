@@ -1,6 +1,6 @@
-import { CreateParameters } from '@mollie/api-client/dist/types/src/binders/orders/parameters';
-import { Amount } from '@mollie/api-client/dist/types/src/data/global';
-import { OrderAddress as MollieOrderAddress } from '@mollie/api-client/dist/types/src/data/orders/data';
+import { CreateParameters } from '@mollie/api-client/dist/types/binders/orders/parameters';
+import { Amount } from '@mollie/api-client/dist/types/data/global';
+import { OrderAddress as MollieOrderAddress } from '@mollie/api-client/dist/types/data/orders/data';
 import { CurrencyCode, Customer, Order } from '@vendure/core';
 import currency from 'currency.js';
 

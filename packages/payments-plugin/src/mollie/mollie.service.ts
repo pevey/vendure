@@ -4,7 +4,7 @@ import createMollieClient, {
     PaymentMethod as MollieClientMethod,
     MollieClient,
 } from '@mollie/api-client';
-import { CreateParameters } from '@mollie/api-client/dist/types/src/binders/orders/parameters';
+import { CreateParameters } from '@mollie/api-client/dist/types/binders/orders/parameters';
 import { Inject, Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import {
@@ -45,6 +45,10 @@ import { MolliePluginOptions } from './mollie.plugin';
 interface OrderStatusInput {
     paymentMethodId: string;
     orderId: string;
+}
+
+interface MollieMetadata {
+    languageCode: string;
 }
 
 class PaymentIntentError implements MolliePaymentIntentError {
@@ -221,10 +225,6 @@ export class MollieService {
             orderInput.method = molliePaymentMethodCode as MollieClientMethod;
         }
         const mollieOrder = await mollieClient.orders.create(orderInput);
-        // Save async, because this shouldn't impact intent creation
-        this.orderService.updateCustomFields(ctx, order.id, { mollieOrderId: mollieOrder.id }).catch(e => {
-            Logger.error(`Failed to save Mollie order ID: ${(e as Error).message}`, loggerCtx);
-        });
         Logger.info(`Created Mollie order ${mollieOrder.id} for order ${order.code}`, loggerCtx);
         const url = mollieOrder.getCheckoutUrl();
         if (!url) {
@@ -258,7 +258,7 @@ export class MollieService {
         }
         const client = createMollieClient({ apiKey });
         const mollieOrder = await client.orders.get(orderId);
-        if (mollieOrder.metadata?.languageCode) {
+        if ((mollieOrder.metadata as MollieMetadata)?.languageCode) {
             // Recreate ctx with the original languageCode
             ctx = new RequestContext({
                 apiType: 'admin',
@@ -266,7 +266,7 @@ export class MollieService {
                 authorizedAsOwnerOnly: false,
                 req: ctx.req,
                 channel: ctx.channel,
-                languageCode: mollieOrder.metadata.languageCode as LanguageCode,
+                languageCode: (mollieOrder.metadata as MollieMetadata).languageCode as LanguageCode,
             });
         }
         Logger.info(
